@@ -23,9 +23,9 @@ THE SOFTWARE.
 */
 
 module.exports = function(RED) {
-    "use strict";
+    'use strict';
     var net = require('net');
-    var os = require("os");
+    var os = require('os');
 
     function CollectdNode(n) {
         RED.nodes.createNode(this, n);
@@ -55,10 +55,10 @@ module.exports = function(RED) {
             collectd.write(putval + '\n', 'utf8');
         });
 
-        this.on("close", function() {
+        this.on('close', function() {
             node.log('Disconnecting from socket file');
             collectd.end();
         });
     }
-    RED.nodes.registerType("collectd", CollectdNode);
+    RED.nodes.registerType('collectd', CollectdNode);
 }
