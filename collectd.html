@@ -68,7 +68,7 @@ THE SOFTWARE.
         outputs: 0,
         icon: 'collectd-icon.png',
         label: function() {
-            return this.metricName || 'collectd';
+            return this.metricName ? (this.metricType || 'gauge') + '-' + this.metricName : 'collectd';
         },
         labelStyle: function() {
             return this.metricName ? 'node_label_italic' : '';
