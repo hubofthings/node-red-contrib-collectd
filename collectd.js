@@ -33,6 +33,7 @@ module.exports = function(RED) {
         this.metricHost = n.metricHost || os.hostname();
         this.metricType = n.metricType || 'gauge';
         this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
+        this.logVerbose = n.logVerbose || false;
 
         var node = this;
         var collectd = net.createConnection(this.socketFile);
@@ -42,7 +43,9 @@ module.exports = function(RED) {
         });
 
         collectd.on('data', function(buffer) {
-            node.log(buffer.toString('utf8'));
+            if (node.logVerbose) {
+                node.log(buffer.toString('utf8'));
+            }
         });
 
         this.on('input', function(msg) {
@@ -50,7 +53,9 @@ module.exports = function(RED) {
             var value = msg.payload;
 
             var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
-            node.log(putval);
+            if (node.logVerbose) {
+                node.log(putval);
+            }
 
             collectd.write(putval + '\n', 'utf8');
         });

@@ -24,20 +24,30 @@ THE SOFTWARE.
 
 <script type="text/x-red" data-template-name="collectd">
     <div class="form-row">
-        <label for="node-input-metricName"><i class="fa fa-tag"></i> Metric Name</label>
+        <label for="node-input-metricName"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-metricName">
     </div>
     <div class="form-row">
-        <label for="node-input-metricHost"><i class="fa fa-dot-circle-o"></i> Host</label>
-        <input type="text" id="node-input-metricHost" placeholder="(host name)">
+        <label for="node-input-metricHost"><i class="fa fa-server"></i> Host</label>
+        <input type="text" id="node-input-metricHost">
     </div>
     <div class="form-row">
-        <label for="node-input-metricType"><i class="fa fa-dot-circle-o"></i> Type</label>
-        <input type="text" id="node-input-metricType" placeholder="gauge">
+        <label for="node-input-metricType"><i class="fa fa-tachometer"></i> Type</label>
+        <select id="node-input-metricType" style="width:73%">
+            <option value="">&nbsp;</option>
+            <option value="gauge">gauge</option>
+            <option value="counter">counter</option>
+            <!-- TODO add options from TypesDB -->
+        </select>
     </div>
     <div class="form-row">
-        <label for="node-input-socketFile"><i class="fa fa-dot-circle-o"></i> Socket File</label>
+        <label for="node-input-socketFile"><i class="fa fa-cog"></i> Socket File</label>
         <input type="text" id="node-input-socketFile" placeholder="/var/run/collectd-unixsock">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-logVerbose" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-logVerbose" style="width: 70%;">Log requests/replies to console?</label>
     </div>
 </script>
 
@@ -62,6 +72,9 @@ THE SOFTWARE.
             },
             socketFile: {
                 value: ''
+            },
+            logVerbose: {
+                value: false
             }
         },
         inputs: 1,
