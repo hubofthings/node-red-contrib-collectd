@@ -38,11 +38,11 @@ module.exports = function(RED) {
         var collectd = net.createConnection(this.socketFile);
 
         collectd.on('connect', function() {
-            console.log('CONNECTED!');
+            node.log('Connected to socket file [' + node.socketFile + ']');
         });
 
         collectd.on('data', function(buffer) {
-            console.log(buffer.toString('utf8'));
+            node.log(buffer.toString('utf8'));
         });
 
         this.on('input', function(msg) {
@@ -50,13 +50,13 @@ module.exports = function(RED) {
             var value = msg.payload;
 
             var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
-            console.log(putval);
+            node.log(putval);
 
             collectd.write(putval + '\n', 'utf8');
         });
 
         this.on("close", function() {
-            console.log('CLOSING!');
+            node.log('Disconnecting from socket file');
             collectd.end();
         });
     }
