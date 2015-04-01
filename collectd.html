@@ -52,7 +52,18 @@ THE SOFTWARE.
 </script>
 
 <script type="text/x-red" data-help-name="collectd">
-    <p>A Node-RED node to send metrics to Collectd.</p>
+    <p>A Node-RED node to send metrics to <a href="https://collectd.org/" target="_blank">Collectd</a>.</p>
+    <p>The Collectd node can be connected to the output of any node, and will publish <code>msg.payload</code> to a Collectd instance running on the local machine.  Optionally will use <code>msg.timestamp</code> if set, otherwise will send the value <code>N</code> to Collectd, which is interpreted as "now".</p>
+    <p>This node makes use of the Collectd <a href="https://collectd.org/wiki/index.php/Plain_text_protocol#PUTVAL" target="_blank">plain text protocol</a> provided by the <a href="https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_unixsock" target="_blank"><code>unixsock</code> plugin</a>.  Simply enable the <code>unixsock</code> plugin in your <code>collectd.conf</code>:</p>
+<pre>
+LoadPlugin unixsock
+&lt;Plugin unixsock&gt;
+    SocketFile "/var/run/collectd-unixsock"
+    SocketPerms "0666"
+    DeleteSocket true
+&lt;/Plugin&gt;
+</pre>
+    <p>The <code>SocketPerms</code> value ensures that any account on the system has write permissions to the socket file, but you can use <code>SocketGroup</code> to restrict permissions to a specific group.  Just be sure the account running Node-RED has permissions to write to the socket file!</p>
 </script>
 
 <script type="text/javascript">
