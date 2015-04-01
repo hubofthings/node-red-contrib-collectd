@@ -6,7 +6,7 @@
     },
     "repository" : {
         "type":"git",
-        "url":"https://bitbucket.org/hubofthings/node-red-contrib-collectd"
+        "url":"https://github.com/hubofthings/node-red-contrib-collectd"
     },
     "license": "MIT",
     "keywords": [ "node-red", "collectd" ],
@@ -18,6 +18,6 @@
     "author": {
         "name": "Geoffrey Arnold",
         "email": "geoffrey@geoffreyarnold.com",
-        "url": "https://bitbucket.org/hubofthings"
+        "url": "https://github.com/garnold"
     }
 }
