@@ -33,7 +33,7 @@ module.exports = function(RED) {
         this.metricHost = n.metricHost || os.hostname();
         this.metricType = n.metricType || 'gauge';
         this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
-        this.logVerbose = n.logVerbose || false;
+        this.consoleLog = n.consoleLog || false;
 
         var node = this;
         var collectd = net.createConnection(this.socketFile);
@@ -43,7 +43,7 @@ module.exports = function(RED) {
         });
 
         collectd.on('data', function(buffer) {
-            if (node.logVerbose) {
+            if (node.consoleLog) {
                 node.log(buffer.toString('utf8'));
             }
         });
@@ -53,7 +53,7 @@ module.exports = function(RED) {
             var value = msg.payload;
 
             var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
-            if (node.logVerbose) {
+            if (node.consoleLog) {
                 node.log(putval);
             }
 
@@ -66,4 +66,14 @@ module.exports = function(RED) {
         });
     }
     RED.nodes.registerType('collectd', CollectdNode);
+
+    RED.httpAdmin.post('/collectd/:id/consoleLog', RED.auth.needsPermission('collectd.consoleLog'), function(req, res) {
+        var node = RED.nodes.getNode(req.params.id);
+        if (node !== null && typeof node !== 'undefined') {
+            node.consoleLog = !node.consoleLog;
+            res.send(200);
+        } else {
+            res.send(404);
+        }
+    });
 }
