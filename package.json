@@ -11,6 +11,7 @@
     "description": "A Node-RED node to send metrics to Collectd.",
     "keywords": [
         "node-red",
+        "node-red-contrib",
         "collectd"
     ],
     "license": "MIT",
