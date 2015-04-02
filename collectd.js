@@ -29,6 +29,7 @@ module.exports = function(RED) {
 
     function CollectdConfigNode(n) {
         RED.nodes.createNode(this, n);
+        this.metricHost = n.metricHost || os.hostname();
         this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
 
         this.socket = net.createConnection(this.socketFile);
@@ -56,7 +57,6 @@ module.exports = function(RED) {
         RED.nodes.createNode(this, n);
         this.collectd = RED.nodes.getNode(n.collectd);
         this.metricName = n.metricName;
-        this.metricHost = n.metricHost || os.hostname();
         this.metricType = n.metricType || 'gauge';
         this.consoleLog = n.consoleLog || false;
 
@@ -69,7 +69,7 @@ module.exports = function(RED) {
             if (isNaN(value)) {
                 node.warn('Payload is NaN [' + msg.payload + ']');
             } else if (node.collectd) {
-                var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
+                var putval = 'PUTVAL "' + node.collectd.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
                 if (node.consoleLog) {
                     node.log(putval);
                 }

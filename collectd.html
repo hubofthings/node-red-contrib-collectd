@@ -24,6 +24,10 @@ THE SOFTWARE.
 
 <script type="text/x-red" data-template-name="collectd-config">
     <div class="form-row">
+        <label for="node-config-input-metricHost"><i class="fa fa-server"></i> Host</label>
+        <input type="text" id="node-config-input-metricHost" placeholder="(hostname)">
+    </div>
+    <div class="form-row">
         <label for="node-config-input-socketFile"><i class="fa fa-cog"></i> Socket File</label>
         <input type="text" id="node-config-input-socketFile" placeholder="/var/run/collectd-unixsock">
     </div>
@@ -37,10 +41,6 @@ THE SOFTWARE.
     <div class="form-row">
         <label for="node-input-metricName"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-metricName">
-    </div>
-    <div class="form-row">
-        <label for="node-input-metricHost"><i class="fa fa-server"></i> Host</label>
-        <input type="text" id="node-input-metricHost" placeholder="(hostname)">
     </div>
     <div class="form-row">
         <label for="node-input-metricType"><i class="fa fa-tachometer"></i> Type</label>
@@ -72,12 +72,15 @@ LoadPlugin unixsock
     RED.nodes.registerType('collectd-config', {
         category: 'config',
         defaults: {
+            metricHost: {
+                value: ''
+            },
             socketFile: {
                 value: ''
             }
         },
         label: function() {
-            return this.socketFile;
+            return this.metricHost || this.socketFile || '/var/run/collectd-unixsock';
         }
     });
 
@@ -93,9 +96,6 @@ LoadPlugin unixsock
             metricName: {
                 value: '',
                 required: true
-            },
-            metricHost: {
-                value: ''
             },
             metricType: {
                 value: ''
