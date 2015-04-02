@@ -50,7 +50,7 @@ module.exports = function(RED) {
 
         this.on('input', function(msg) {
             var timestamp = msg.timestamp || 'N';
-            var value = Number(msg.payload);
+            var value = Number(msg.payload || 0);
 
             if (isNaN(value)) {
                 node.warn('Payload is NaN [' + msg.payload + ']');
