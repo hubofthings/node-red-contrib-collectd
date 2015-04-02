@@ -27,26 +27,40 @@ module.exports = function(RED) {
     var net = require('net');
     var os = require('os');
 
-    function CollectdNode(n) {
+    function CollectdConfigNode(n) {
         RED.nodes.createNode(this, n);
-        this.metricName = n.metricName;
         this.metricHost = n.metricHost || os.hostname();
-        this.metricType = n.metricType || 'gauge';
         this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
-        this.consoleLog = n.consoleLog || false;
+
+        this.socket = net.createConnection(this.socketFile);
 
         var node = this;
-        var collectd = net.createConnection(this.socketFile);
 
-        collectd.on('connect', function() {
+        this.socket.on('connect', function() {
             node.log('Connected to socket file [' + node.socketFile + ']');
         });
 
-        collectd.on('data', function(buffer) {
+        this.socket.on('data', function(buffer) {
             if (node.consoleLog) {
                 node.log(buffer.toString('utf8'));
             }
         });
+
+        this.on('close', function() {
+            node.log('Disconnecting from socket file');
+            node.socket.end();
+        });
+    }
+    RED.nodes.registerType('collectd-config', CollectdConfigNode);
+
+    function CollectdNode(n) {
+        RED.nodes.createNode(this, n);
+        this.collectd = RED.nodes.getNode(n.collectd);
+        this.metricName = n.metricName;
+        this.metricType = n.metricType || 'gauge';
+        this.consoleLog = n.consoleLog || false;
+
+        var node = this;
 
         this.on('input', function(msg) {
             var timestamp = msg.timestamp || 'N';
@@ -54,19 +68,16 @@ module.exports = function(RED) {
 
             if (isNaN(value)) {
                 node.warn('Payload is NaN [' + msg.payload + ']');
-            } else {
-                var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
+            } else if (node.collectd) {
+                var putval = 'PUTVAL "' + node.collectd.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
                 if (node.consoleLog) {
                     node.log(putval);
                 }
 
-                collectd.write(putval + '\n', 'utf8');
+                node.collectd.socket.write(putval + '\n', 'utf8');
+            } else {
+                node.error('Collectd node is not configured');
             }
-        });
-
-        this.on('close', function() {
-            node.log('Disconnecting from socket file');
-            collectd.end();
         });
     }
     RED.nodes.registerType('collectd', CollectdNode);
