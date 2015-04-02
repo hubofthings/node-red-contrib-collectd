@@ -27,3 +27,9 @@ Usage
 This node can be connected to the output of any node, and will publish `msg.payload` to a Collectd instance running on the local machine.  It will use `msg.timestamp` if set, otherwise the value `N` will be sent to Collectd, which is interpreted as "now".
 
 The button to the right of the node will toggle console logging of Collectd requests/replies on and off.
+
+TODO
+----
+
+  - Add support for [sending data to a remote instance of Collectd](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_network)
+  - Add support for [native Collectd types](https://collectd.org/documentation/manpages/types.db.5.shtml)
