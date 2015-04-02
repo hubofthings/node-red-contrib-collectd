@@ -50,14 +50,18 @@ module.exports = function(RED) {
 
         this.on('input', function(msg) {
             var timestamp = msg.timestamp || 'N';
-            var value = msg.payload;
+            var value = Number(msg.payload);
 
-            var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
-            if (node.consoleLog) {
-                node.log(putval);
+            if (isNaN(value)) {
+                node.warn('Payload is NaN [' + msg.payload + ']');
+            } else {
+                var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
+                if (node.consoleLog) {
+                    node.log(putval);
+                }
+
+                collectd.write(putval + '\n', 'utf8');
             }
-
-            collectd.write(putval + '\n', 'utf8');
         });
 
         this.on('close', function() {
