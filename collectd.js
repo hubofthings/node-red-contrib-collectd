@@ -51,6 +51,15 @@ module.exports = function(RED) {
             node.log('Disconnecting from socket file');
             node.socket.end();
         });
+
+        this.putval = function(metricType, metricName, timestamp, value) {
+            var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + metricType + '-' + metricName + '" ' + timestamp + ':' + value;
+            if (node.consoleLog) {
+                node.log(putval);
+            }
+
+            node.socket.write(putval + '\n', 'utf8');
+        };
     }
     RED.nodes.registerType('collectd-config', CollectdConfigNode);
 
@@ -69,12 +78,7 @@ module.exports = function(RED) {
             if (isNaN(value)) {
                 node.warn('Payload is NaN [' + msg.payload + ']');
             } else if (node.collectd) {
-                var putval = 'PUTVAL "' + node.collectd.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
-                if (node.collectd.consoleLog) {
-                    node.collectd.log(putval);
-                }
-
-                node.collectd.socket.write(putval + '\n', 'utf8');
+                node.collectd.putval(node.metricType, node.metricName, timestamp, value);
             } else {
                 node.error('Collectd node is not configured');
             }
