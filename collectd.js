@@ -31,6 +31,7 @@ module.exports = function(RED) {
         RED.nodes.createNode(this, n);
         this.metricHost = n.metricHost || os.hostname();
         this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
+        this.consoleLog = n.consoleLog || false; // TODO make configurable
 
         this.socket = net.createConnection(this.socketFile);
 
@@ -58,7 +59,6 @@ module.exports = function(RED) {
         this.collectd = RED.nodes.getNode(n.collectd);
         this.metricName = n.metricName;
         this.metricType = n.metricType || 'gauge';
-        this.consoleLog = n.consoleLog || false;
 
         var node = this;
 
@@ -70,8 +70,8 @@ module.exports = function(RED) {
                 node.warn('Payload is NaN [' + msg.payload + ']');
             } else if (node.collectd) {
                 var putval = 'PUTVAL "' + node.collectd.metricHost + '/node_red/' + node.metricType + '-' + node.metricName + '" ' + timestamp + ':' + value;
-                if (node.consoleLog) {
-                    node.log(putval);
+                if (node.collectd.consoleLog) {
+                    node.collectd.log(putval);
                 }
 
                 node.collectd.socket.write(putval + '\n', 'utf8');
@@ -81,14 +81,4 @@ module.exports = function(RED) {
         });
     }
     RED.nodes.registerType('collectd', CollectdNode);
-
-    RED.httpAdmin.post('/collectd/:id/consoleLog', RED.auth.needsPermission('collectd.consoleLog'), function(req, res) {
-        var node = RED.nodes.getNode(req.params.id);
-        if (node !== null && typeof node !== 'undefined') {
-            node.consoleLog = !node.consoleLog;
-            res.send(200);
-        } else {
-            res.send(404);
-        }
-    });
 }
