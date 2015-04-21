@@ -27,30 +27,23 @@ module.exports = function(RED) {
     var net = require('net');
     var os = require('os');
 
-    function CollectdConfigNode(n) {
-        RED.nodes.createNode(this, n);
-        this.metricHost = n.metricHost || os.hostname();
-        this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
-        this.consoleLog = n.consoleLog || false; // TODO make configurable
+    function LocalCollectdClient(node) {
+        var socket = net.createConnection(node.socketFile);
 
-        this.socket = net.createConnection(this.socketFile);
-
-        var node = this;
-
-        this.socket.on('connect', function() {
+        socket.on('connect', function() {
             node.log('Connected to socket file [' + node.socketFile + ']');
         });
 
-        this.socket.on('data', function(buffer) {
+        socket.on('data', function(buffer) {
             if (node.consoleLog) {
                 node.log(buffer.toString('utf8'));
             }
         });
 
-        this.on('close', function() {
+        this.close = function() {
             node.log('Disconnecting from socket file');
-            node.socket.end();
-        });
+            socket.end();
+        };
 
         this.putval = function(metricType, metricName, timestamp, value) {
             var putval = 'PUTVAL "' + node.metricHost + '/node_red/' + metricType + '-' + metricName + '" ' + timestamp + ':' + value;
@@ -58,8 +51,23 @@ module.exports = function(RED) {
                 node.log(putval);
             }
 
-            node.socket.write(putval + '\n', 'utf8');
+            socket.write(putval + '\n', 'utf8');
         };
+    }
+
+    function CollectdConfigNode(n) {
+        RED.nodes.createNode(this, n);
+        this.metricHost = n.metricHost || os.hostname();
+        this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
+        this.consoleLog = n.consoleLog || true; // TODO make configurable
+
+        this.client = new LocalCollectdClient(this);
+
+        var node = this;
+
+        this.on('close', function() {
+            node.client.close();
+        });
     }
     RED.nodes.registerType('collectd-config', CollectdConfigNode);
 
@@ -78,7 +86,7 @@ module.exports = function(RED) {
             if (isNaN(value)) {
                 node.warn('Payload is NaN [' + msg.payload + ']');
             } else if (node.collectd) {
-                node.collectd.putval(node.metricType, node.metricName, timestamp, value);
+                node.collectd.client.putval(node.metricType, node.metricName, timestamp, value);
             } else {
                 node.error('Collectd node is not configured');
             }
