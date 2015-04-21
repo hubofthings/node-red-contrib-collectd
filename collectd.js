@@ -55,9 +55,36 @@ module.exports = function(RED) {
         };
     }
 
+    function RemoteCollectdClient(node) {
+        var socket = require('dgram').createSocket('udp4');
+
+        var collectjs = require('collectjs');
+        var bridge = collectjs.create({
+            host: node.metricHost
+        });
+
+        this.close = function() {
+            socket.close();
+        };
+
+        this.putval = function(metricType, metricName, timestamp, value) {
+            var packet = bridge.packet({
+                plugin: 'node_red',
+                type: metricType,
+                values: [{
+                    type: metricName, // TODO ???
+                    value: value
+                }]
+            });
+
+            // TODO add `collectdHost`, `collectdPort` to config node
+            client.send(packet, 0, packet.length, node.collectdPort, node.collectdHost, function() {});
+        };
+    }
+
     function CollectdConfigNode(n) {
         RED.nodes.createNode(this, n);
-        this.metricHost = n.metricHost || os.hostname();
+        this.metricHost = n.metricHost || os.hostname(); // TODO rename to `source`?
         this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
         this.consoleLog = n.consoleLog || true; // TODO make configurable
 
