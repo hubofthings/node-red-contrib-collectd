@@ -82,11 +82,11 @@ module.exports = function(RED) {
         };
     }
 
-    function CollectdConfigNode(n) {
-        RED.nodes.createNode(this, n);
-        this.metricHost = n.metricHost || os.hostname(); // TODO rename to `source`?
-        this.socketFile = n.socketFile || '/var/run/collectd-unixsock';
-        this.consoleLog = n.consoleLog || true; // TODO make configurable
+    function CollectdConfigNode(config) {
+        RED.nodes.createNode(this, config);
+        this.metricHost = config.metricHost || os.hostname(); // TODO rename to `source`?
+        this.socketFile = config.socketFile || '/var/run/collectd-unixsock';
+        this.consoleLog = config.consoleLog || true; // TODO make configurable
 
         this.client = new LocalCollectdClient(this);
 
@@ -98,11 +98,11 @@ module.exports = function(RED) {
     }
     RED.nodes.registerType('collectd-config', CollectdConfigNode);
 
-    function CollectdNode(n) {
-        RED.nodes.createNode(this, n);
-        this.collectd = RED.nodes.getNode(n.collectd);
-        this.metricName = n.metricName;
-        this.metricType = n.metricType || 'gauge';
+    function CollectdNode(config) {
+        RED.nodes.createNode(this, config);
+        this.collectd = RED.nodes.getNode(config.collectd);
+        this.metricName = config.metricName;
+        this.metricType = config.metricType || 'gauge';
 
         var node = this;
 
