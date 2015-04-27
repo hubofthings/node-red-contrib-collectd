@@ -77,7 +77,6 @@ module.exports = function(RED) {
                 }]
             });
 
-            // TODO add `collectdHost`, `collectdPort` to config node
             client.send(packet, 0, packet.length, node.collectdPort, node.collectdHost, function() {});
         };
     }
@@ -87,6 +86,8 @@ module.exports = function(RED) {
         this.metricHost = config.metricHost || os.hostname(); // TODO rename to `source`?
         this.socketFile = config.socketFile || '/var/run/collectd-unixsock';
         this.consoleLog = config.consoleLog || true; // TODO make configurable
+        this.collectdHost = config.collectdHost || 'localhost';
+        this.collectdPort = config.collectdPort || 25826;
 
         this.client = new LocalCollectdClient(this);
 
