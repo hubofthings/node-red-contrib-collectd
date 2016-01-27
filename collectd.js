@@ -86,9 +86,17 @@ module.exports = function(RED) {
         var node = RED.nodes.getNode(req.params.id);
         if (node !== null && typeof node !== 'undefined') {
             node.consoleLog = !node.consoleLog;
-            res.send(200);
+            if (res.sendStatus) {
+                res.sendStatus(200);
+            } else {
+                res.send(200);
+            }
         } else {
-            res.send(404);
+            if (res.sendStatus) {
+                res.sendStatus(404);
+            } else {
+                res.send(404);
+            }
         }
     });
 }
