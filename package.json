@@ -12,7 +12,8 @@
   "keywords": [
     "node-red",
     "node-red-contrib",
-    "collectd"
+    "collectd",
+    "metrics"
   ],
   "license": "MIT",
   "name": "node-red-contrib-collectd",
